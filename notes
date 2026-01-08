@@ -1,0 +1,29 @@
+Terminal Prompts--
+
+✅ Create Folder using Terminal
+mkdir folderName
+📂 Create Folder inside another Folder
+mkdir src/components
+⚠️ If parent folders don’t exist, use:
+mkdir -p src/components
+🔍 Check if folder is created
+dir
+
+
+GIT Prompts--
+
+
+keeing the folder empty in the git repo the file must ignore the .gitkeep file
+
+
+Backend Prompts--
+
+
+✅npm init
+✅Make defaul and fast by -- npm init -y
+✅change type to module to use import commands in pakage.json
+✅also install nodemon
+✅change scripts to "dev": "nodemon src/index.js" //only keep this script
+✅Install prettier-> make file .prettierrc , .prettierignore (this includes the files which should be ignored to make pretty such as .env .vscode .node_modules ./dist)
+
+
