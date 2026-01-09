@@ -25,16 +25,24 @@ Backend Prompts--
 ✅also install nodemon
 ✅change scripts to "dev": "nodemon src/index.js" //only keep this script
 ✅Install prettier-> make file .prettierrc , .prettierignore (this includes the files which should be ignored to make pretty such as .env .vscode .node_modules ./dist)
+✅Connect the database
+✅Install the cors and cookie parser and set up the app.js file
+
 
 📸Connecting Database--
 ✅crete cluster and add the link of compass section from mongodb 
 <!-- !NOTE*** to remove the ending slash -->
+✅setup the index.js of both db and src folder
 <!--? You must know this while connecting database -->
+
 ✅Many errors will occur while connecting database we must wrap them in try and catch or we can take Promise
 ✅😂Data base kisi aur continent mai hai
 toh time lagega So async await lagana padega!!!
 ✅Database ek line mai comment nahi karna chaiye
 
+
+NOTES---
+😂app.use isme ham use tabhe use karte jab hame cors ya fir Middleware use karna ho!!
 
 
 

@@ -9,12 +9,14 @@ class ApiError extends Error {
         this.statusCode = statusCode
         this.data = null
         this.success = false;
-        this.errors = this.errors
+        this.errors = errors
 
         if (statck) {
-            this.stack = this.stack
+            this.stack = stack
         }else{
             Error.captureStackTrace(this, this.constructor)
         }
     }
 }
+
+export default ApiError
