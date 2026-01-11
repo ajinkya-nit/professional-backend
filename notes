@@ -1,4 +1,4 @@
-Terminal Prompts--
+📸Terminal Prompts--
 
 ✅ Create Folder using Terminal
 mkdir folderName
@@ -10,14 +10,12 @@ mkdir -p src/components
 dir
 
 
-GIT Prompts--
-
+📸GIT Prompts--
 
 keeing the folder empty in the git repo the file must ignore the .gitkeep file
 
 
-Backend Prompts--
-
+📸Backend Prompts--
 
 ✅npm init
 ✅Make defaul and fast by -- npm init -y
@@ -30,20 +28,29 @@ Backend Prompts--
 
 
 📸Connecting Database--
+
 ✅crete cluster and add the link of compass section from mongodb 
 <!-- !NOTE*** to remove the ending slash -->
 ✅setup the index.js of both db and src folder
 <!--? You must know this while connecting database -->
-
 ✅Many errors will occur while connecting database we must wrap them in try and catch or we can take Promise
 ✅😂Data base kisi aur continent mai hai
 toh time lagega So async await lagana padega!!!
 ✅Database ek line mai comment nahi karna chaiye
 
 
-NOTES---
+📸NOTES---
 😂app.use isme ham use tabhe use karte jab hame cors ya fir Middleware use karna ho!!
+✅MiddleWare --It is a function that sits in the middle of a request–response cycle and runs before the final response is sent.
+✅Use prehook of middleware of Mongoose , for using jwt and bcrypt
 
 
 
-Database Connection will be doen through mongoose--
+📸Database Connection will be doen through mongoose--
+
+
+📸File Upload--
+✅We will need multer (or) express FileUpload.
+✅To manage files in node.js we use fileSystem(fs) so we import fs from fs.
+✅Making Middleware,starting with multer
+
