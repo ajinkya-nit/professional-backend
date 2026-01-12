@@ -43,6 +43,10 @@ toh time lagega So async await lagana padega!!!
 😂app.use isme ham use tabhe use karte jab hame cors ya fir Middleware use karna ho!!
 ✅MiddleWare --It is a function that sits in the middle of a request–response cycle and runs before the final response is sent.
 ✅Use prehook of middleware of Mongoose , for using jwt and bcrypt
+✅Now we will head to controller ,routes and the app.js
+Controller -- The routes are triggered and then they trigger the respective controllers
+-Now the controllers contains the logic, they take ingredients from the models.
+✅We declare the routes in the app.js (and then we go to user.routes.js to declare their work)
 
 
 
