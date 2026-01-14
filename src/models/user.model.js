@@ -52,10 +52,9 @@ const userSchema = new Schema({
 
 
 userSchema.pre("save", async function(next){
-    if(!this.isModified("password")) return next();
+    if(!this.isModified("password")) return;
      //* This will check and run this only when the user set,updates the password
     this.password = await bcrypt.hash(this.password, 10)
-    next()
 })
 
 userSchema.methods.isPasswordCorrect = async function(password){
