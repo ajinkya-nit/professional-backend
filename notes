@@ -58,3 +58,5 @@ Controller -- The routes are triggered and then they trigger the respective cont
 ✅To manage files in node.js we use fileSystem(fs) so we import fs from fs.
 ✅Making Middleware,starting with multer
 
+📸Designing your own Middleware--
+✅
