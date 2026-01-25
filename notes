@@ -60,3 +60,5 @@ Controller -- The routes are triggered and then they trigger the respective cont
 
 📸Designing your own Middleware--
 ✅
+
+📸Operators and Aggregation of mongodb
