@@ -61,4 +61,7 @@ Controller -- The routes are triggered and then they trigger the respective cont
 📸Designing your own Middleware--
 ✅
 
-📸Operators and Aggregation of mongodb
+📸Operators and Aggregation pipeline of mongodb
+🧠Aggregation means:Taking many documents → processing them step-by-step → returning a transformed result
+✅An aggregation pipeline consists of one or more stages that process documents.
+✅The documents that a stage outputs are then passed to the next stage in the pipeline.

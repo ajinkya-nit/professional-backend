@@ -53,7 +53,7 @@ const registerUser = asyncHandler(async (req, res) => {
     // Upload them to cloudinary (only call cover upload if path exists)
     const avatar = await uploadOncloudinary(avatarLocalPath)
     const coverImage = coverImageLocalPath ? await uploadOncloudinary(coverImageLocalPath) : null
-
+    
     if(!avatar){
         throw new ApiError(400, "Avatar file is required!")
     }
@@ -303,6 +303,78 @@ const updateUserCoverImage = asyncHandler(async(req, res) => {
     .json(new ApiResponse(200, user, "Cover Image updated successfully!"))
 })
 
+const getUserchannelProfile = asyncHandler(async(req, res) => {
+    const {username} = req.params
+
+    if (!username?.trim()) {
+        throw new ApiError(400, "username is undefined")
+
+    }
+
+    const channel = await User.aggregate([
+        {//* first pipeline
+            $match: { //*first stage
+                username: username?.toLowerCase()
+            }
+        },
+        {
+            $lookup:{
+                from: "subscriptions", //* Ab ye subscription.model.js se link karega user.model.js ko(pipeline) aur _id
+                localField: "_id",
+                foreignField: "channel",
+                as: "subscribers"
+            }
+        },
+        {
+            $lookup:{
+                from: "subscriptions", //* Ab ye subscription.model.js se link karega user.model.js ko(pipeline) aur _id
+                localField: "_id",
+                foreignField: "subscriber",
+                as: "subscribedTo"
+            }
+        },
+        {
+            $addFields:{
+                subscribersCount:{
+                    $size:"$subscribers"
+                },
+                channelsScubscribedToCount: {
+                    $size: "$subscribedTo"
+                },
+                isSubscribed: {
+                    $cond: {
+                        if: {$in: [req.user?._id, "$subscribers.subscriber"]}, //* Ye $in arrays aur objects dono mai dekh leta hai
+                        then: true,
+                        else: false
+                    }
+                }
+            }
+        },
+        {
+            $project:{ //* Ye kehta hai ki mai sari chize nahi dunga baas selected cheze dunga
+                fullName: 1,
+                username:1,
+                subscribersCount:1,
+                channelsScubscribedToCount:1,
+                isSubscribed:1,
+                coverImage:1,
+                avatar:1,
+                createdAt:1
+            }
+        }
+    ])
+
+    if (!channel?.length) {
+        throw new ApiError(404, "channel does not exists")
+    }
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200, channel[0], "User channel fetched successfully!")
+    )
+})
+
 export {
     registerUser,
     loginUser,
@@ -312,5 +384,6 @@ export {
     getCurrentUser,
     updateAccountDetails,
     updateUserAvatar,
-    updateUserCoverImage
+    updateUserCoverImage,
+    getUserchannelProfile
 }
