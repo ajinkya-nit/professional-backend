@@ -375,6 +375,57 @@ const getUserchannelProfile = asyncHandler(async(req, res) => {
     )
 })
 
+const getWatchHistory = asyncHandler(async(req, res) => {
+    const user = await User.aggregate([
+        {
+            $match: {
+                _id: new mongoose.Types.ObjectId(req.user._id)
+                 //! Agar aisa likhenge wrong -->req.user._id
+                //*In aggregation the code is directly sent to mongo db so the in reality _id gives string, when we used the commented code it works for mongoose becoz it converts that string into id   
+            }
+
+        },
+        {
+            $lookup: {
+                from: "videos",
+                localField: "watchHistory",
+                foreignField: "_id",
+                as: "watchHistory",
+                pipeline: [
+                    { //* this is my nested lookup
+                        $lookup: {
+                            from: "users",
+                            localField: "owner",
+                            foreignField: "_id",
+                            as: "owner",
+                            pipeline: [
+                                {
+                                    $project: {
+                                        fullName: 1,
+                                        username: 1,
+                                        avatar:1,
+                                    }
+                                }
+                            ]
+                        },
+                    }
+                ]
+            }
+        }
+    ])
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(
+            200,
+            user[0].getWatchHistory,
+            "Watch history fetched successfully!"
+        )
+    )
+
+})
+
 export {
     registerUser,
     loginUser,
