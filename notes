@@ -37,7 +37,7 @@ keeing the folder empty in the git repo the file must ignore the .gitkeep file
 ✅😂Data base kisi aur continent mai hai
 toh time lagega So async await lagana padega!!!
 ✅Database ek line mai comment nahi karna chaiye
-
+✅paginate means splitting a large set of data into smaller chunks (pages) instead of returning everything at once. 
 
 📸NOTES---
 😂app.use isme ham use tabhe use karte jab hame cors ya fir Middleware use karna ho!!

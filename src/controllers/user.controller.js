@@ -140,9 +140,12 @@ const logoutUser = asyncHandler(async(req, res) => {
     await User.findByIdAndUpdate(
         req.user._id,
         {
-            $set: {
-                refreshToken: undefined
+            $unset: {
+                refreshToken: 1
             }
+        },
+        {
+            new: true
         }
     )
     
@@ -274,6 +277,7 @@ const updateUserAvatar = asyncHandler(async(req, res) => {
     .status(200)
     .json(new ApiResponse(200, user, "Cover Image updated successfully!"))
 })
+
 const updateUserCoverImage = asyncHandler(async(req, res) => {
     const coverImageLocalPath = req.file?.path
 
