@@ -156,11 +156,15 @@ const updateVideo = asyncHandler(async (req, res) => {
 const deleteVideo = asyncHandler(async (req, res) => {
     const { videoId } = req.params
     
-    (!isValidObjectId(videoId)) && throw new ApiError(400, "Invalid video ID")
+    if(!isValidObjectId(videoId)){
+        throw new ApiError(400, "Invalid video ID")
+    }
 
     const video =  await Video.findById(videoId)
-    !video && throw new ApiError(404, "Video not found")
-
+    if(!video){
+        throw new ApiError(404, "Video not found")
+    }
+    
     if(video.owner.toString() !== req.user?._id.toString()){
         throw new ApiError(403, "You do not have permission to delete this video")
     }
@@ -173,11 +177,15 @@ const deleteVideo = asyncHandler(async (req, res) => {
 const togglePublishStatus = asyncHandler(async (req, res) => {
     const { videoId } = req.params
 
-    (!isValidObjectId(videoId)) && throw new ApiError(400, "Invalid video ID")
+    if(!isValidObjectId(videoId)){
+        throw new ApiError(400, "Invalid video ID")
+    }
 
     const video =  await Video.findById(videoId)
-    !video && throw new ApiError(404, "Video not found")
 
+    if(!video){
+        throw new ApiError(404, "Video not found")
+    }
     if(video.owner.toString() !== req.user?._id.toString()){
         throw new ApiError(403, "You do not have permission to update this video")
     }
