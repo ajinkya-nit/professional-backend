@@ -1,10 +1,10 @@
 import mongoose, {isValidObjectId} from "mongoose"
 import {Video} from "../models/video.model.js"
 import {User} from "../models/user.model.js"
-import {ApiError} from "../utils/ApiError.js"
-import {ApiResponse} from "../utils/ApiResponse.js"
-import {asyncHandler} from "../utils/asyncHandler.js"
-import {uploadOnCloudinary} from "../utils/cloudinary.js"
+import ApiError from "../utils/ApiError.js"
+import ApiResponse from "../utils/ApiResponse.js"
+import asyncHandler from "../utils/asyncHandler.js"
+import uploadOnCloudinary from "../utils/cloudinary.js"
 
 
 const getAllVideos = asyncHandler(async (req, res) => {
@@ -76,7 +76,7 @@ const publishAVideo = asyncHandler(async (req, res) => {
         description,
         duration: uploadedVideo.duration,
         owner: req.user?._id,
-        isPublished = isPublished !== undefined ? isPublished : true
+        isPublished: isPublished !== undefined ? isPublished : true
     })
 
     await newVideo.save()
@@ -87,7 +87,9 @@ const publishAVideo = asyncHandler(async (req, res) => {
 const getVideoById = asyncHandler(async (req, res) => {
     const { videoId } = req.params
     
-    (!isValidObjectId(videoId)) && throw new ApiError(400, "Invalid video ID")
+    if(!isValidObjectId(videoId)){
+        throw new ApiError(400, "Invalid video ID")
+    }
 
     const video =  await Video.findById(videoId).populate("owner", "name email avatar")
 
