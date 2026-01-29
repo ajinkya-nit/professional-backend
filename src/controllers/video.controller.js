@@ -4,7 +4,7 @@ import {User} from "../models/user.model.js"
 import ApiError from "../utils/ApiError.js"
 import ApiResponse from "../utils/ApiResponse.js"
 import asyncHandler from "../utils/asyncHandler.js"
-import uploadOnCloudinary from "../utils/cloudinary.js"
+import  uploadOnCloudinary    from "../utils/cloudinary.js"
 
 
 const getAllVideos = asyncHandler(async (req, res) => {
@@ -54,35 +54,44 @@ const getAllVideos = asyncHandler(async (req, res) => {
 
 
 const publishAVideo = asyncHandler(async (req, res) => {
-    const { title, description, isPublished} = req.body
-    
-    if(!title || !description || !req.file?.path){
-        throw new ApiError(400, "Title, description and video file are required")
-    }
+    const { title, description, isPublished } = req.body;
 
+    // 1. Get local paths correctly from req.files
     const videoLocalPath = req.files?.videoFile?.[0]?.path;
-    const uploadedVideo = await uploadOnCloudinary(videoLocalPath);
+    const thumbnailLocalPath = req.files?.thumbnail?.[0]?.path;
 
-    if(!uploadedVideo?.url){
-        throw new ApiError(400, "Error while uploading video")
+    // 2. Validation: Ensure both files and text are present
+    if (!title || !description || !videoLocalPath || !thumbnailLocalPath) {
+        throw new ApiError(400, "All fields (title, description, video, and thumbnail) are required");
     }
 
-    const thumbnailUrl = uploadedVideo?.thumbnails?.length ? uploadedVideo.thumbnails[0].url : ""
+    // 3. Upload Video to Cloudinary
+    const uploadedVideo = await uploadOnCloudinary(videoLocalPath);
+    if (!uploadedVideo?.url) {
+        throw new ApiError(400, "Error while uploading video file");
+    }
 
-    const newVideo = new Video({
+    // 4. Upload Thumbnail to Cloudinary (MISSING IN YOUR CODE)
+    const uploadedThumbnail = await uploadOnCloudinary(thumbnailLocalPath);
+    if (!uploadedThumbnail?.url) {
+        throw new ApiError(400, "Error while uploading thumbnail image");
+    }
+
+    // 5. Create Video document with actual Cloudinary URLs
+    const newVideo = await Video.create({
         videoFile: uploadedVideo.url,
-        thumbnail: thumbnailUrl,
+        thumbnail: uploadedThumbnail.url, // Correctly using the URL from Cloudinary
         title,
         description,
         duration: uploadedVideo.duration,
         owner: req.user?._id,
-        isPublished: isPublished !== undefined ? isPublished : true
-    })
+        isPublished: isPublished !== undefined ? isPublished : true // Fixed the = vs : error
+    });
 
-    await newVideo.save()
-
-    return res.status(201).json(new ApiResponse(201, newVideo, "Video published successfully"))
-})
+    return res
+        .status(201)
+        .json(new ApiResponse(201, newVideo, "Video published successfully"));
+});
 
 const getVideoById = asyncHandler(async (req, res) => {
     const { videoId } = req.params
