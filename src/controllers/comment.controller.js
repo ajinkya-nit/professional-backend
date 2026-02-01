@@ -1,14 +1,25 @@
-import  asyncHandler  from "../utils/asyncHandler.js"
+import mongoose, { isValidObjectId } from "mongoose"
+import asyncHandler from "../utils/asyncHandler.js"
 import ApiError from '../utils/ApiError.js'
 import ApiResponse from "../utils/ApiResponse.js"
-import jwt from "jsonwebtoken"
 import { Comment } from "../models/comment.model.js"
+import { Video } from "../models/video.model.js"
 
 
 const getVideoComments = asyncHandler(async (req, res) => {
-    const {videoId} = req.params
-    const {page = 1, limit = 10} = req.query // * The values of limit and page will act as a safety net if the frontend developer forget to send them, so backend does not crash
-    const comments = await Comment.aggregate([
+    const { videoId } = req.params
+    const { page = 1, limit = 10 } = req.query
+
+    if (!videoId || !isValidObjectId(videoId)) {
+        throw new ApiError(400, "Invalid video ID")
+    }
+
+    const videoExists = await Video.findById(videoId).select("_id")
+    if (!videoExists) {
+        throw new ApiError(404, "Video not found")
+    }
+
+    const commentsAggregate = Comment.aggregate([
         {
             $match: {
                 video: new mongoose.Types.ObjectId(videoId)
@@ -16,20 +27,26 @@ const getVideoComments = asyncHandler(async (req, res) => {
         }
     ])
 
-    const options = {
-        page: page,
-        limit: limit,
-    };
+    const result = await Comment.aggregatePaginate(commentsAggregate, {
+        page: parseInt(page),
+        limit: parseInt(limit)
+    })
 
-    const result = await Comment.aggregatePaginate(comments, options)
-
-    return res.status(200)
-    .json(new ApiResponse(200, result, "comment fetched successfully!"))
+    return res.status(200).json(new ApiResponse(200, result, "Comments fetched successfully"))
 })
 
 const addComment = asyncHandler(async (req, res) => {
     const { videoId } = req.params
     const { content } = req.body
+
+    if (!videoId || !isValidObjectId(videoId)) {
+        throw new ApiError(400, "Invalid video ID");
+    }
+
+    const videoExists = await Video.findById(videoId).select("_id")
+    if (!videoExists) {
+        throw new ApiError(404, "Video not found");
+    }
 
     if (!content || content.trim() === "") {
         throw new ApiError(400, "Comment content is required");

@@ -1,4 +1,5 @@
-import  asyncHandler  from "../utils/asyncHandler.js"
+import mongoose, { isValidObjectId } from "mongoose"
+import asyncHandler from "../utils/asyncHandler.js"
 import ApiError from '../utils/ApiError.js'
 import { User } from "../models/user.model.js"
 import uploadOncloudinary from "../utils/cloudinary.js" 
@@ -222,8 +223,7 @@ const changeCurrentPassword = asyncHandler(async(req, res)=> {
 })
 
 const getCurrentUser = asyncHandler(async(req, res) => {
-    return res.status(200)
-    .json(200, req.user, "current user fetched successfully")
+    return res.status(200).json(200, req.user, "current user fetched successfully")
 })
 
 const updateAccountDetails = asyncHandler(async(req, res) => {
@@ -379,15 +379,16 @@ const getUserchannelProfile = asyncHandler(async(req, res) => {
     )
 })
 
-const getWatchHistory = asyncHandler(async(req, res) => {
-    const user = await User.aggregate([
-        {
-            $match: {
-                _id: new mongoose.Types.ObjectId(req.user._id)
-                 //! Agar aisa likhenge wrong -->req.user._id
-                //*In aggregation the code is directly sent to mongo db so the in reality _id gives string, when we used the commented code it works for mongoose becoz it converts that string into id   
-            }
+const getWatchHistory = asyncHandler(async (req, res) => {
+    // ensure we have a valid authenticated user id
+    const userId = req.user?._id
+    if (!userId || !isValidObjectId(userId)) {
+        throw new ApiError(400, "Invalid user id")
+    }
 
+    const result = await User.aggregate([
+        {
+            $match: { _id: new mongoose.Types.ObjectId(userId) }
         },
         {
             $lookup: {
@@ -396,7 +397,7 @@ const getWatchHistory = asyncHandler(async(req, res) => {
                 foreignField: "_id",
                 as: "watchHistory",
                 pipeline: [
-                    { //* this is my nested lookup
+                    {
                         $lookup: {
                             from: "users",
                             localField: "owner",
@@ -407,27 +408,25 @@ const getWatchHistory = asyncHandler(async(req, res) => {
                                     $project: {
                                         fullName: 1,
                                         username: 1,
-                                        avatar:1,
+                                        avatar: 1
                                     }
                                 }
                             ]
-                        },
+                        }
                     }
                 ]
             }
         }
     ])
 
-    return res
-    .status(200)
-    .json(
-        new ApiResponse(
-            200,
-            user[0].getWatchHistory,
-            "Watch history fetched successfully!"
-        )
-    )
+    if (!result || !result.length) {
+        // authenticated user exists (verifyJWT), but aggregation returned nothing — return empty history
+        return res.status(200).json(new ApiResponse(200, [], "Watch history fetched successfully!"))
+    }
 
+    const watchHistory = result[0].watchHistory || []
+
+    return res.status(200).json(new ApiResponse(200, watchHistory, "Watch history fetched successfully!"))
 })
 
 export {

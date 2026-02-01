@@ -86,8 +86,20 @@ const getChannelVideos = asyncHandler(async (req, res) => {
         },
         {
             $sort: { createdAt: -1 }
-        }
+        },
+        {
+            $lookup: {
+                from: "users",
+                localField: "owner",
+                foreignField: "_id",
+                as: "owner",
+                pipeline: [{ $project: { username: 1, avatar: 1 } }]
+            }
+        },
+        { $unwind: { path: "$owner", preserveNullAndEmptyArrays: true } }
     ]);
+
+    return res.status(200).json(new ApiResponse(200, videos, "Channel videos fetched successfully"));
 })
 
 export {

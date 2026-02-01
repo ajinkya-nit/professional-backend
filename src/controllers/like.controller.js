@@ -12,7 +12,7 @@ const toggleVideoLike = asyncHandler(async (req, res) => {
     }
 
     const likedAlready = await Like.findOne({
-        user: req.user?._id,
+        likedBy: req.user?._id,
         video: videoId
     })
 
@@ -25,7 +25,7 @@ const toggleVideoLike = asyncHandler(async (req, res) => {
     }
 
     const newLike = await Like.create({
-        user: req.user?._id,
+        likedBy: req.user?._id,
         video: videoId
     })
 
@@ -40,7 +40,7 @@ const toggleCommentLike = asyncHandler(async (req, res) => {
     }
 
     const likedAlready = await Like.findOne({
-        user: req.user?._id,
+        likedBy: req.user?._id,
         comment: commentId
     })
 
@@ -53,7 +53,7 @@ const toggleCommentLike = asyncHandler(async (req, res) => {
     }
 
     const newLike = await Like.create({
-        user: req.user?._id,
+        likedBy: req.user?._id,
         comment: commentId
     })
 
@@ -69,8 +69,8 @@ const toggleTweetLike = asyncHandler(async (req, res) => {
     }
 
     const likedAlready = await Like.findOne({
-        user: req.user?._id,
-        comment: commentId
+        likedBy: req.user?._id,
+        tweet: tweetId
 
     })
 
@@ -83,7 +83,7 @@ const toggleTweetLike = asyncHandler(async (req, res) => {
     }
 
     const newLike = await Like.create({
-        user: req.user?._id,
+        likedBy: req.user?._id,
         tweet: tweetId
     })
 

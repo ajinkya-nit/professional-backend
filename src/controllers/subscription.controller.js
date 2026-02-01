@@ -7,65 +7,62 @@ import asyncHandler from "../utils/asyncHandler.js"
 
 
 const toggleSubscription = asyncHandler(async (req, res) => {
-    const {channelId} = req.params
+    const { channelId } = req.params
     const subscriberId = req.user._id
 
-    if(!isValidObjectId(channelId)){
+    if (!isValidObjectId(channelId)) {
         throw new ApiError(400, "Invalid channel ID")
     }
 
-    if(channelId.toString() === subscriberId.toString()){
+    if (channelId.toString() === subscriberId.toString()) {
         throw new ApiError(400, "You cannot subscribe to your own channel")
     }
 
     const channel = await User.findById(channelId)
-    if(!channel){
+    if (!channel) {
         throw new ApiError(404, "Channel not found")
     }
-    const existingSubscription = await Subscription.aggregate([
-        {
-            $match: {
-                channelId: new mongoose.Types.ObjectId(channelId),
-                subscriberId: new mongoose.Types.ObjectId(subscriberId)
-            }
-        }
-    ])
 
-    if(existingSubscription.length > 0){
+    const existingSubscription = await Subscription.findOne({
+        channel: channelId,
+        subscriber: subscriberId
+    })
+
+    if (existingSubscription) {
         await Subscription.deleteOne({
-            channelId: channelId,
-            subscriberId: subscriberId
+            channel: channelId,
+            subscriber: subscriberId
         })
-        return res.status(200).json(new ApiResponse(200, "Unsubscribed successfully"))
+        return res.status(200).json(new ApiResponse(200, null, "Unsubscribed successfully"))
     }
 
     const newSubscription = new Subscription({
-        channelId: channelId,
-        subscriberId: subscriberId
+        channel: channelId,
+        subscriber: subscriberId
     })
     await newSubscription.save()
-    return res.status(200).json(new ApiResponse(200, "Subscribed successfully"))
+    return res.status(201).json(new ApiResponse(201, newSubscription, "Subscribed successfully"))
 })
 
 // controller to return subscriber list of a channel
 const getUserChannelSubscribers = asyncHandler(async (req, res) => {
-    const {channelId} = req.params
+    const { channelId } = req.params
 
-    if(!isValidObjectId(channelId)){
+    if (!isValidObjectId(channelId)) {
         throw new ApiError(400, "Invalid channel ID")
     }
 
     const channel = await User.findById(channelId)
-    if(!channel){
+    if (!channel) {
         throw new ApiError(404, "Channel not found")
     }
 
     const subscribers = await Subscription.aggregate([
-        { $match: { channelId: new mongoose.Types.ObjectId(channelId) } },
+        { $match: { channel: new mongoose.Types.ObjectId(channelId) } },
         {
             $lookup: {
                 from: "users",
-                localField: "subscriberId",
+                localField: "subscriber",
                 foreignField: "_id",
                 as: "subscriberDetails"
             }
@@ -75,20 +72,21 @@ const getUserChannelSubscribers = asyncHandler(async (req, res) => {
             $project: {
                 _id: 0,
                 subscriberId: "$subscriberDetails._id",
-                name: "$subscriberDetails.name",
+                fullName: "$subscriberDetails.fullName",
                 email: "$subscriberDetails.email",
                 subscribedAt: "$createdAt"
             }
         }
     ])
 
-    return res.status(200).json(new ApiResponse(200, "Subscribers fetched successfully", subscribers))
+    return res.status(200).json(new ApiResponse(200, subscribers, "Subscribers fetched successfully"))
 
 })
 
 // controller to return channel list to which user has subscribed
 const getSubscribedChannels = asyncHandler(async (req, res) => {
-    const { subscriberId } = req.params;
+    // subscriber is the authenticated user (route does not take a param)
+    const subscriberId = req.user?._id
 
     if (!isValidObjectId(subscriberId)) {
         throw new ApiError(400, "Invalid subscriber ID");

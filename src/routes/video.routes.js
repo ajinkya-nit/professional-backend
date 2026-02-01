@@ -5,10 +5,6 @@ import { getVideoById, updateVideo, deleteVideo, togglePublishStatus, getAllVide
 
 const router = Router()
 
-router.route('/:videoId').get(verifyJWT, getVideoById);
-router.route('/:videoId').put(verifyJWT, updateVideo);
-router.route('/:videoId').delete(verifyJWT, deleteVideo);
-router.route('/:videoId/toggle-publish').patch(verifyJWT, togglePublishStatus);
 router.route('/get-videos').get(getAllVideos);
 router.route('/publish').post(verifyJWT,upload.fields([
     {
@@ -19,6 +15,10 @@ router.route('/publish').post(verifyJWT,upload.fields([
         maxCount: 1
     }
 ]), publishAVideo);
+router.route('/:videoId').get(verifyJWT, getVideoById);
+router.route('/:videoId').put(verifyJWT, upload.single('thumbnail'), updateVideo);
+router.route('/:videoId').delete(verifyJWT, deleteVideo);
+router.route('/:videoId/toggle-publish').patch(verifyJWT, togglePublishStatus);
 
 
 export default router
